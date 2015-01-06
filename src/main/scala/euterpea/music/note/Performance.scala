@@ -32,13 +32,14 @@ object Performance {
                          notatePlayer: NotateFun[A] = ()) extends Player[A]
   type NoteFun[A] = Context[A] => Dur => A => Performance
   type PhraseFun[A] = (PMap[A], Context[A], List[PhraseAttribute], Music[A]) => (Performance, DurT)
-  type NotateFun[A] = ()
+  type NotateFun[A] = Unit
   //val defPlayer: Player[Note1] = MkPlayer("Default", defPlayNote(defNasHandler), defInterpPhrase(defPasHandler))
-  def defPlayNote[A](nasHandler: Context[(Pitch, List[A])] => A => Event => Event): NoteFun[(Pitch, List[A])] = { c: Context[(Pitch, List[A])] => { (d: Dur, a: (Pitch, List[A])) => {
+  def defPlayNote[A](nasHandler: Context[(Pitch, List[A])] => A => Event => Event): NoteFun[(Pitch, List[A])] = {
+    c: Context[(Pitch, List[A])] => d: Dur => a: (Pitch, List[A]) => {
       val (p, nas) = a
       val Context(cTime, cPlayer, cInst, cDur, cPch, cVol, cKey) = c
       val initEv = Event(cTime, cInst, absPitch(p) + cPch, /* d * cDur */ d, cVol, Nil)
-      nas.foldRight(initEv)(nasHandler(c))
+      List(nas.foldRight(initEv)((a, ev) => nasHandler(c)(a)(ev)))
     }
   }
   def defNasHandler[A](c: Context[A])(na: NoteAttribute, ev: Event): Event = na match {
