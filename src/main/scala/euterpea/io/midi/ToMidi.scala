@@ -1,7 +1,7 @@
 package euterpea.io.midi
 
 import euterpea.music.note.Music._
-import euterpea.music.note.Performance.{Performance, Performable}
+import euterpea.music.note.Performance.{Performance, Performable, defToPerf}
 import ExportMidiFile._
 import scodec.midi.Midi._
 
@@ -32,6 +32,6 @@ object ToMidi {
     (Viola,7),
     (StringEnsemble1,8),
     (AcousticGrandPiano,9))
-  def testMidi[A: Performable](m: Music[A]): Midi = ???
+  def testMidi[A: Performable](m: Music[A]): Midi = toMidi(defToPerf(m), defUpm)
   def test[A: Performable](m: Music[A]): IO[Unit] = exportMidiFile("test.mid", testMidi(m))
 }

@@ -90,6 +90,11 @@ object Performance {
     case Art(Legato(x)) => p.map(e=>e.copy(eDur = x * e.eDur))
     case _ => p
   }
+  def defPMap(n: PlayerName) = n match {
+    case "Fancy" => fancyPlayer
+    case "Default" => defPlayer
+    case _ => defPlayer.copy(pName = n)
+  }
   val fancyPlayer: Player[(Pitch, List[NoteAttribute])] = Player(
     pName = "Fancy",
     playNote = defPlayNote(defNasHandler),
@@ -147,5 +152,5 @@ object Performance {
       override def perfDur(pm: PMap[Note1], c: Context[Note1], m: Music[Pitch]): (Performance, DurT) = ???
     }
   }
-  def defToPerf[A: Performable](m: Music[A]): Performance = ???
+  def defToPerf[A: Performable](m: Music[A]): Performance = implicitly[Performable[A]].perfDur(defPMap _, defCon, m)._1
 }
