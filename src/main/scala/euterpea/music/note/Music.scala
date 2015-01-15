@@ -49,7 +49,7 @@ object Music {
   case class Rest(dur: Dur) extends Primitive[Nothing]
   // deriving (Show, Eq, Ord)
 
-  sealed trait Music[A]
+  sealed trait Music[+A]
   case class Prim[A](prim: Primitive[A]) extends Music[A]
   case class :+:[A](left: Music[A], right: Music[A]) extends Music[A]
   case class :=:[A](left: Music[A], right: Music[A]) extends Music[A]
@@ -57,12 +57,14 @@ object Music {
   // deriving (Show, Eq, Ord)
 
   sealed trait Control
-  case class Tempo(tempo: Rational) extends Control
-  case class Transpose(absPitch: AbsPitch) extends Control
-  case class Instrument(instrumentName: InstrumentName) extends Control
-  case class Phrase(attrs: List[PhraseAttribute]) extends Control
-  case class Player(playerName: PlayerName) extends Control
-  case class KeySig(pitchClass: PitchClass, mode: Mode) extends Control
+  object Control {
+    case class Tempo(tempo: Rational) extends Control
+    case class Transpose(absPitch: AbsPitch) extends Control
+    case class Instrument(instrumentName: InstrumentName) extends Control
+    case class Phrase(attrs: List[PhraseAttribute]) extends Control
+    case class Player(playerName: PlayerName) extends Control
+    case class KeySig(pitchClass: PitchClass, mode: Mode) extends Control
+  }
   // deriving (Show, Eq, Ord)
 
   type PlayerName = String
@@ -82,10 +84,41 @@ object Music {
   case object StringEnsemble1 extends InstrumentName
 
   sealed trait PhraseAttribute
+  case class Dyn(dyn: Dynamic) extends PhraseAttribute
+  case class Tmp(tmp: Tempo) extends PhraseAttribute
+  case class Art(art: Articulation) extends PhraseAttribute
+  case class Orn(orn: Ornament) extends PhraseAttribute
+
+  sealed trait Dynamic
+  object Dynamic {
+    case class Accent(acc: Rational) extends Dynamic
+    case class Crescendo(cres: Rational) extends Dynamic
+    case class Diminuendo(dim: Rational) extends Dynamic
+    case class StdLoudness(l: Music.StdLoudness) extends Dynamic
+    case class Loudness(l: Rational) extends Dynamic
+  }
+
+  sealed trait StdLoudness
+  sealed trait Tempo
+  sealed trait Articulation
+  case class Staccato(r: Rational) extends Articulation
+  case class Legato(r: Rational) extends Articulation
+
+  sealed trait Ornament
+  sealed trait NoteHead
 
   def note[A](d: Dur, p: A): Music[A] = Prim(Note(d, p))
   def rest(d: Dur): Music[Nothing] = Prim(Rest(d))
-  def tempo[A](r: Dur, m: Music[A]): Music[A] = Modify(Tempo(r), m)
+  def tempo[A](r: Dur, m: Music[A]): Music[A] = Modify(Control.Tempo(r), m)
+
+  val bn: Dur = 2
+  val wn: Dur = 1
+  val hn: Dur = wn/2
+  val qn: Dur = wn/4
+  val en: Dur = wn/8
+  val sn: Dur = wn/16
+  val tn: Dur = wn/32
+  val sfn: Dur = wn/64
 
   type AbsPitch = Int
   def absPitch(p: Pitch): AbsPitch = p match {
@@ -93,5 +126,39 @@ object Music {
   }
   def pcToInt(pc: PitchClass): Int = pc match {
     case Cff => -2
+    case Cf => -1
+    case C => 0
+    case Dff => 0
+    case Cs => 1
+    case Df => 1
+    case Css => 2
+    case D => 2
+    case Eff => 2
+    case Ds => 3
+    case Ef => 3
+    case Fff => 3
+    case Dss => 4
+    case E => 4
+    case Ff => 4
+    case Es => 5
+    case F => 5
+    case Gff => 5
+    case Ess => 6
+    case Fs => 6
+    case Gf => 6
+    case Fss => 7
+    case G => 7
+    case Aff => 7
+    case Gs => 8
+    case Af => 8
+    case Gss => 9
+    case A => 9
+    case Bff => 9
+    case As => 10
+    case Bf => 10
+    case Ass => 11
+    case B => 11
+    case Bs => 12
+    case Bss => 13
   }
 }
