@@ -4,6 +4,7 @@ import Music._
 import MoreMusic._
 import euterpea.music.note.MoreMusic.{NoteAttribute => NA}
 import euterpea.music.note.MoreMusic.Volume
+import euterpea.music.note.Music.InstrumentName.AcousticGrandPiano
 import euterpea.music.note.Music.{Control => Ctrl}
 import spire.math.Rational
 
@@ -57,6 +58,10 @@ object Performance {
     }
   }
   type Note1 = (Pitch, List[NoteAttribute])
+  type Music1 = Music[Note1]
+
+  def toMusic1(m: Music[Pitch]): Music1 = mMap(m)(p => (p, Nil))
+  def toMusic1p(m: Music[(Pitch, Volume)]): Music1 = mMap(m){case (p, v) => (p, List(NA.Volume(v)))}
   case class Player[A](pName: PlayerName,
                          playNote: NoteFun[A],
                          interpPhrase: PhraseFun[A],
@@ -148,8 +153,17 @@ object Performance {
     def perfDur(pm: PMap[Note1], c: Context[Note1], m: Music[A]): (Performance, DurT)
   }
   object Performable {
-    implicit val performablePitchVolume = new Performable[Pitch] {
-      override def perfDur(pm: PMap[Note1], c: Context[Note1], m: Music[Pitch]): (Performance, DurT) = ???
+    implicit val performableNote1 = new Performable[Note1] {
+      override def perfDur(pm: PMap[Note1], c: Context[Note1], m: Music[Note1]): (Performance, DurT) =
+        perf(pm, c, m)
+    }
+    implicit val performablePitch = new Performable[Pitch] {
+      override def perfDur(pm: PMap[Note1], c: Context[Note1], m: Music[Pitch]): (Performance, DurT) =
+        perf(pm, c, toMusic1(m))
+    }
+    implicit val performablePitchVolume = new Performable[(Pitch, Volume)] {
+      override def perfDur(pm: PMap[Note1], c: Context[Note1], m: Music[(Pitch, Volume)]): (Performance, DurT) =
+        perf(pm, c, toMusic1p(m))
     }
   }
   def defToPerf[A: Performable](m: Music[A]): Performance = implicitly[Performable[A]].perfDur(defPMap _, defCon, m)._1

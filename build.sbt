@@ -15,6 +15,7 @@ incOptions := incOptions.value.withNameHashing(true)
 libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-effect" % "7.1.0",
   "org.spire-math" %% "spire" % "0.9.0",
-  "org.scodec" %% "scodec-bits" % "1.0.5"
+  "org.scodec" %% "scodec-bits" % "1.0.5",
+  "org.typelevel" %% "scodec-core" % "1.6.0"
 )
 
