@@ -25,7 +25,7 @@ object Midi {
   type Pressure = Int
   type Preset = Int
   type Bank = Int
-  type PitchWheel = Int
+  type PitchBend = Int
   type Tempo = Int
   sealed trait Message
   object Message {
@@ -35,7 +35,7 @@ object Midi {
     case class ControlChange(channel: Channel, controllerNumber: Int, controllerValue: Int) extends Message
     case class ProgramChange(channel: Channel, preset: Preset) extends Message
     case class ChannelPressure(channel: Channel, pressure: Pressure) extends Message
-    case class PitchWheel(channel: Channel, pitchWheel: PitchWheel) extends Message
+    case class PitchWheel(channel: Channel, pitchWheel: PitchBend) extends Message
     // Meta Messages
     case class SequenceNumber(sn: Int) extends Message
     case class Text(t: String) extends Message

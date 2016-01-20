@@ -98,8 +98,11 @@ object ExportMidiFile {
 
   private val msgNoteOn = hex"90".bits
   private val msgNoteOff = hex"80".bits
-  private val msgProgramChange = hex"c0".bits
+  private val msgKeyPressure = hex"a0".bits
   private val msgControlChange = hex"b0".bits
+  private val msgProgramChange = hex"c0".bits
+  private val msgChannelPressure = hex"d0".bits
+  private val msgPitchWheel = hex"e0".bits
   private val msgTempoChange = hex"ff5103".bits
 
   def msgToBytes(m: Message): Attempt[ByteVector] = m match {
@@ -129,6 +132,25 @@ object ExportMidiFile {
     case TempoChange(t) => for {
       tb <- uint24.encode(t)
     } yield (msgTempoChange ++ tb).toByteVector
+
+    case KeyPressure(c, k, p) => for {
+      cb <- uint8.encode(c)
+      kb <- uint8.encode(k)
+      pb <- uint8.encode(p)
+    } yield ((msgKeyPressure | cb) ++ kb ++ pb).toByteVector
+
+    case ChannelPressure(c, p) => for {
+      cb <- uint8.encode(c)
+      pb <- uint8.encode(p)
+    } yield ((msgChannelPressure | cb) ++ pb).toByteVector
+
+    case PitchWheel(c, p) =>
+      val amount = 0x2000 + p
+      for {
+      cb <- uint8.encode(c)
+      lsb <- uint8.encode(amount & 127)
+      msb <- uint8.encode((amount >> 7) & 127)
+    } yield ((msgPitchWheel | cb) ++ lsb ++ msb).toByteVector
 
     case other => Attempt.failure(Err(s"Message unsupported: $other"))
   }
