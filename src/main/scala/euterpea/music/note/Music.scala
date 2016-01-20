@@ -233,7 +233,7 @@ object Music {
 
   def note[A](d: Dur, p: A): Music[A] = Prim(Note(d, p))
   def rest[A](d: Dur): Music[A] = Prim(Rest(d))
-  def tempo[A](r: Dur, m: Music[A]): Music[A] = Modify(Control.Tempo(r), m)
+  def tempo[A](r: Dur)(m: => Music[A]): Music[A] = Modify(Control.Tempo(r), m)
 
   def cff(o: Octave, d: Dur) = note(d, (Cff,  o))
   def cf(o: Octave, d: Dur) = note(d, (Cf,   o))
