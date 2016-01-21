@@ -59,6 +59,13 @@ object MoreMusic {
     })
   }
 
+  def mkLn[A](n: Int, p: A, d: Dur): Music[A] = {
+    val music = note(d, p)
+    (0 until n).foldLeft(rest[A](0)){
+      case (result, _) => :=:(music, result)
+    }
+  }
+
   def pMap[A,B](pa: Primitive[A])(f: A => B): Primitive[B] = pa match {
     case Note(d, x) => Note(d, f(x))
     case r@Rest(_) => r
