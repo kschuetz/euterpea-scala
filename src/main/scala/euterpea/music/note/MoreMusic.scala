@@ -39,6 +39,9 @@ object MoreMusic {
       case m: Lazy[A] => takeM(d)(m.value)
     }
 
+  def repeatM[A](music: Music[A]): Music[A] =
+    :+:(music, Lazy(repeatM(music)))
+
   def pMap[A,B](pa: Primitive[A])(f: A => B): Primitive[B] = pa match {
     case Note(d, x) => Note(d, f(x))
     case r@Rest(_) => r
