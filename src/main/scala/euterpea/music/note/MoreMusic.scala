@@ -42,6 +42,23 @@ object MoreMusic {
   def repeatM[A](music: Music[A]): Music[A] =
     :+:(music, Lazy(repeatM(music)))
 
+  def lineToList[A](music: Music[A]): List[Music[A]] = music match {
+    case Prim(Rest(d)) if d.isZero => Nil
+    case :+:(n, ns) => n :: lineToList(ns)
+    case lm: Lazy[A] => lineToList(lm.value)
+    case _ => throw new IllegalArgumentException("lineToList: argument not created by function line")
+  }
+
+  def invert(music: Music[Pitch]): Music[Pitch] = {
+    val l@(Prim(Note(_, r)) :: _) = lineToList(music)
+    val r2 = 2 * absPitch(r)
+
+    line(l.collect {
+      case Prim(Note(d, p)) => note(d, pitch(r2 - absPitch(p)))
+      case p@Prim(Rest(_)) => p
+    })
+  }
+
   def pMap[A,B](pa: Primitive[A])(f: A => B): Primitive[B] = pa match {
     case Note(d, x) => Note(d, f(x))
     case r@Rest(_) => r

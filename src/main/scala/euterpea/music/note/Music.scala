@@ -334,4 +334,24 @@ object Music {
     case Bs => 12
     case Bss => 13
   }
+
+  def pitch(ap: AbsPitch): Pitch = {
+    val oct = ap / 12
+    val p = ap % 12 match {
+      case 1 => Cs
+      case 2 => D
+      case 3 => Ds
+      case 4 => E
+      case 5 => F
+      case 6 => Fs
+      case 7 => G
+      case 8 => Gs
+      case 9 => A
+      case 10 => As
+      case 11 => B
+      case _ => C
+    }
+    (p, oct)
+  }
+
 }
