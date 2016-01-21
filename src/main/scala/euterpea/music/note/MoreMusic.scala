@@ -21,6 +21,7 @@ object MoreMusic {
     case :=:(m1, m2) => dur(m1).max(dur(m2))
     case Modify(Control.Tempo(r), m) => dur(m) / r
     case Modify(_, m) => dur(m)
+    case m: Lazy[A] => dur(m.value)
   }
 
   def takeM[A](d: Dur)(music: => Music[A]): Music[A] =
@@ -35,6 +36,7 @@ object MoreMusic {
         :+:(m1a, m2a)
       case Modify(Control.Tempo(r), m) => tempo(r)(takeM(d * r)(m))
       case Modify(c, m) => Modify(c, takeM(d)(m))
+      case m: Lazy[A] => takeM(d)(m.value)
     }
 
   def pMap[A,B](pa: Primitive[A])(f: A => B): Primitive[B] = pa match {
@@ -47,6 +49,7 @@ object MoreMusic {
     case :+:(m1, m2) => :+:(mMap(m1)(f), mMap(m2)(f))
     case :=:(m1, m2) => :=:(mMap(m1)(f), mMap(m2)(f))
     case Modify(c, m) => Modify(c, mMap(m)(f))
+    case m: Lazy[A] => mMap(m.value)(f)
   }
 
   type Volume = Int

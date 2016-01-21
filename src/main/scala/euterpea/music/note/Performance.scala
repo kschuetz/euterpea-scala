@@ -55,6 +55,7 @@ object Performance {
       case Modify(Ctrl.KeySig(pc, mo), m) => perf(pm, c.copy(cKey = (pc, mo)), m)
       case Modify(Ctrl.Player(pn), m) => perf(pm, c.copy(cPlayer = pm(pn)), m)
       case Modify(Ctrl.Phrase(pas), m) => pl.interpPhrase(pm, c, pas, m)
+      case lm: Lazy[A] => perf(pm, c, lm.value)
     }
   }
   type Note1 = (Pitch, List[NoteAttribute])

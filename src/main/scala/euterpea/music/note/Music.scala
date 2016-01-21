@@ -56,6 +56,15 @@ object Music {
   case class Modify[A](control: Control, music: Music[A]) extends Music[A]
   // deriving (Show, Eq, Ord)
 
+  class Lazy[A](underlying: => Music[A]) extends Music[A] {
+    lazy val value = underlying
+  }
+
+  object Lazy {
+    def apply[A](underlying: => Music[A]) =
+      new Lazy(underlying)
+  }
+
   sealed trait Control
   object Control {
     case class Tempo(tempo: Rational) extends Control
