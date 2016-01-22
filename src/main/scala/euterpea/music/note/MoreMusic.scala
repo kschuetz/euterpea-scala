@@ -195,10 +195,10 @@ object MoreMusic {
     case class Params(ps: List[Double]) extends NoteAttribute
   }
 
-  class MusicOps[A](music: Music[A]) {
+  class MoreMusicOps[A](music: Music[A]) {
     def /=:(m2: Music[A]): Music[A] =
       :+:(takeML(durL(m2))(music), takeML(durL(music))(m2))
   }
 
-  implicit def musicToMusicOps[A](music: Music[A]): MusicOps[A] = new MusicOps(music)
+  implicit def musicToMusicOps[A](music: Music[A]): MoreMusicOps[A] = new MoreMusicOps(music)
 }

@@ -245,55 +245,88 @@ object Music {
   def note[A](d: Dur, p: A): Music[A] = Prim(Note(d, p))
   def rest[A](d: Dur): Music[A] = Prim(Rest(d))
   def tempo[A](r: Dur)(m: => Music[A]): Music[A] = Modify(Control.Tempo(r), m)
+  def transpose[A](i: AbsPitch)(m: => Music[A]): Music[A] = Modify(Control.Transpose(i), m)
+  def instrument[A](i: InstrumentName)(m: => Music[A]): Music[A] = Modify(Control.Instrument(i), m)
+  def phrase[A](pa: List[PhraseAttribute])(m: => Music[A]): Music[A] = Modify(Control.Phrase(pa), m)
+  def player[A](pn: PlayerName)(m: => Music[A]): Music[A] = Modify(Control.Player(pn), m)
+  def keysig[A](pc: PitchClass, mode: Mode)(m: => Music[A]): Music[A] = Modify(Control.KeySig(pc, mode), m)
 
-  def cff(o: Octave, d: Dur) = note(d, (Cff,  o))
-  def cf(o: Octave, d: Dur) = note(d, (Cf,   o))
-  def c(o: Octave, d: Dur) = note(d, (C,    o))
-  def cs(o: Octave, d: Dur) = note(d, (Cs,   o))
-  def css(o: Octave, d: Dur) = note(d, (Css,  o))
-  def dff(o: Octave, d: Dur) = note(d, (Dff,  o))
-  def df(o: Octave, d: Dur) = note(d, (Df,   o))
-  def d(o: Octave, d: Dur) = note(d, (D,    o))
-  def ds(o: Octave, d: Dur) = note(d, (Ds,   o))
-  def dss(o: Octave, d: Dur) = note(d, (Dss,  o))
-  def eff(o: Octave, d: Dur) = note(d, (Eff,  o))
-  def ef(o: Octave, d: Dur) = note(d, (Ef,   o))
-  def e(o: Octave, d: Dur) = note(d, (E,    o))
-  def es(o: Octave, d: Dur) = note(d, (Es,   o))
-  def ess(o: Octave, d: Dur) = note(d, (Ess,  o))
-  def fff(o: Octave, d: Dur) = note(d, (Fff,  o))
-  def ff(o: Octave, d: Dur) = note(d, (Ff,   o))
-  def f(o: Octave, d: Dur) = note(d, (F,    o))
-  def fs(o: Octave, d: Dur) = note(d, (Fs,   o))
-  def fss(o: Octave, d: Dur) = note(d, (Fss,  o))
-  def gff(o: Octave, d: Dur) = note(d, (Gff,  o))
-  def gf(o: Octave, d: Dur) = note(d, (Gf,   o))
-  def g(o: Octave, d: Dur) = note(d, (G,    o))
-  def gs(o: Octave, d: Dur) = note(d, (Gs,   o))
-  def gss(o: Octave, d: Dur) = note(d, (Gss,  o))
-  def aff(o: Octave, d: Dur) = note(d, (Aff,  o))
-  def af(o: Octave, d: Dur) = note(d, (Af,   o))
-  def a(o: Octave, d: Dur) = note(d, (A,    o))
-  def as(o: Octave, d: Dur) = note(d, (As,   o))
-  def ass(o: Octave, d: Dur) = note(d, (Ass,  o))
-  def bff(o: Octave, d: Dur) = note(d, (Bff,  o))
-  def bf(o: Octave, d: Dur) = note(d, (Bf,   o))
-  def b(o: Octave, d: Dur) = note(d, (B,    o))
-  def bs(o: Octave, d: Dur) = note(d, (Bs,   o))
-  def bss(o: Octave, d: Dur) = note(d, (Bss,  o))
+
+  def cff(o: Octave, d: Dur): Music[Pitch] = note(d, (Cff,  o))
+  def cf(o: Octave, d: Dur): Music[Pitch] = note(d, (Cf,   o))
+  def c(o: Octave, d: Dur): Music[Pitch] = note(d, (C,    o))
+  def cs(o: Octave, d: Dur): Music[Pitch] = note(d, (Cs,   o))
+  def css(o: Octave, d: Dur): Music[Pitch] = note(d, (Css,  o))
+  def dff(o: Octave, d: Dur): Music[Pitch] = note(d, (Dff,  o))
+  def df(o: Octave, d: Dur): Music[Pitch] = note(d, (Df,   o))
+  def d(o: Octave, d: Dur): Music[Pitch] = note(d, (D,    o))
+  def ds(o: Octave, d: Dur): Music[Pitch] = note(d, (Ds,   o))
+  def dss(o: Octave, d: Dur): Music[Pitch] = note(d, (Dss,  o))
+  def eff(o: Octave, d: Dur): Music[Pitch] = note(d, (Eff,  o))
+  def ef(o: Octave, d: Dur): Music[Pitch] = note(d, (Ef,   o))
+  def e(o: Octave, d: Dur): Music[Pitch] = note(d, (E,    o))
+  def es(o: Octave, d: Dur): Music[Pitch] = note(d, (Es,   o))
+  def ess(o: Octave, d: Dur): Music[Pitch] = note(d, (Ess,  o))
+  def fff(o: Octave, d: Dur): Music[Pitch] = note(d, (Fff,  o))
+  def ff(o: Octave, d: Dur): Music[Pitch] = note(d, (Ff,   o))
+  def f(o: Octave, d: Dur): Music[Pitch] = note(d, (F,    o))
+  def fs(o: Octave, d: Dur): Music[Pitch] = note(d, (Fs,   o))
+  def fss(o: Octave, d: Dur): Music[Pitch] = note(d, (Fss,  o))
+  def gff(o: Octave, d: Dur): Music[Pitch] = note(d, (Gff,  o))
+  def gf(o: Octave, d: Dur): Music[Pitch] = note(d, (Gf,   o))
+  def g(o: Octave, d: Dur): Music[Pitch] = note(d, (G,    o))
+  def gs(o: Octave, d: Dur): Music[Pitch] = note(d, (Gs,   o))
+  def gss(o: Octave, d: Dur): Music[Pitch] = note(d, (Gss,  o))
+  def aff(o: Octave, d: Dur): Music[Pitch] = note(d, (Aff,  o))
+  def af(o: Octave, d: Dur): Music[Pitch] = note(d, (Af,   o))
+  def a(o: Octave, d: Dur): Music[Pitch] = note(d, (A,    o))
+  def as(o: Octave, d: Dur): Music[Pitch] = note(d, (As,   o))
+  def ass(o: Octave, d: Dur): Music[Pitch] = note(d, (Ass,  o))
+  def bff(o: Octave, d: Dur): Music[Pitch] = note(d, (Bff,  o))
+  def bf(o: Octave, d: Dur): Music[Pitch] = note(d, (Bf,   o))
+  def b(o: Octave, d: Dur): Music[Pitch] = note(d, (B,    o))
+  def bs(o: Octave, d: Dur): Music[Pitch] = note(d, (Bs,   o))
+  def bss(o: Octave, d: Dur): Music[Pitch] = note(d, (Bss,  o))
   
-  val bn: Dur = 2
-  val wn: Dur = 1
-  val hn: Dur = wn/2
-  val qn: Dur = wn/4
-  val en: Dur = wn/8
-  val sn: Dur = wn/16
-  val tn: Dur = wn/32
-  val sfn: Dur = wn/64
+  val bn: Dur = 2             //  brevis
+  val wn: Dur = 1             //  whole note
+  val hn: Dur = wn/2          //  half note
+  val qn: Dur = wn/4          //  quarter note
+  val en: Dur = wn/8          //  eighth note
+  val sn: Dur = wn/16         //  sixteenth note
+  val tn: Dur = wn/32         //  thirty-second note
+  val sfn: Dur = wn/64        //  sixty-fourth note
 
-  val dwn: Dur = wn*3/2
-  val dhn: Dur = wn*3/4
-  val dqn: Dur = wn*3/8
+  val dwn: Dur = wn*3/2       //  dotted whole note
+  val dhn: Dur = wn*3/4       //  dotted half note
+  val dqn: Dur = wn*3/8       //  dotted quarter note
+  val den: Dur = wn*3/16      //  dotted eighth note
+  val dsn: Dur = wn*3/32      //  dotted sixteenth note
+  val dtn: Dur = wn*3/64      //  dotted thirty-second note
+
+  val ddhn: Dur = wn*7/8      //  double-dotted half note
+  val ddqn: Dur = wn*7/16     //  double-dotted quarter note
+  val dden: Dur = wn*7/32     //  double-dotted eighth note
+  
+  val bnr = rest(bn)
+  val wnr = rest(wn)
+  val hnr = rest(hn)
+  val qnr = rest(qn)
+  val enr = rest(en)
+  val snr = rest(sn)
+  val tnr = rest(tn)
+  val sfnr = rest(sfn)
+
+  val dwnr = rest(dwn)
+  val dhnr = rest(dhn)
+  val dqnr = rest(dqn)
+  val denr = rest(den)
+  val dsnr = rest(dsn)
+  val dtnr = rest(dtn)
+  
+  val ddhnr = rest(ddhn)
+  val ddqnr = rest(ddqn)
+  val ddenr = rest(dden)
 
   type AbsPitch = Int
   def absPitch(p: Pitch): AbsPitch = p match {
@@ -354,6 +387,26 @@ object Music {
       case _ => C
     }
     (p, oct)
+  }
+
+  def trans(i: Int, p: Pitch): Pitch =
+    pitch(absPitch(p) + i)
+
+
+  class MusicOps[A](music: Music[A]) {
+    def :+:(m2: Music[A]): Music[A] =
+      Music.:+:(music, m2)
+    def :=:(m2: Music[A]): Music[A] =
+      Music.:=:(music, m2)
+  }
+
+  implicit def musicToMusicOps[A](music: Music[A]): MusicOps[A] = new MusicOps(music)
+  
+  val t251 = {
+    val dMinor = d(4, wn) :=: f(4, wn) :=: a(4, wn)
+    val gMajor = g(4, wn) :=: b(4, wn) :=: d(5, wn)
+    val cMajor = c(4, wn) :=: e(4, wn) :=: g(5, wn)
+    dMinor :+: gMajor :+: cMajor
   }
 
 }
