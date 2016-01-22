@@ -200,5 +200,5 @@ object MoreMusic {
       :+:(takeML(durL(m2))(music), takeML(durL(music))(m2))
   }
 
-  implicit def musicToMusicOps[A](music: Music[A]): MoreMusicOps[A] = new MoreMusicOps(music)
+  implicit def musicToMoreMusicOps[A](music: Music[A]): MoreMusicOps[A] = new MoreMusicOps(music)
 }

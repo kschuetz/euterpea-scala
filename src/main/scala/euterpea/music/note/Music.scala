@@ -59,7 +59,10 @@ object Music {
   // deriving (Show, Eq, Ord)
 
   class Lazy[A](underlying: => Music[A]) extends Compound[A] {
-    lazy val value = underlying
+    lazy val value: Music[A] = underlying match {
+      case lm: Lazy[A] => lm.value
+      case m => m
+    }
   }
 
   object Lazy {
