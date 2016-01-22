@@ -3,9 +3,20 @@ package euterpea.music.note
 import euterpea.music.note.Music._
 
 object MoreMusic {
-  def line[A](ml: List[Music[A]]): Music[A] = ml.foldRight(rest[A](0)){case (l, r) => :+:(l, r)}
 
-  def chord[A](ml: List[Music[A]]): Music[A] = ml.foldRight(rest[A](0)){case (l, r) => :=:(l, r)}
+  def serial[A](l: Music[A], r: Music[A]): Music[A] =
+    :+:(l, r)
+
+  def parallel[A](l: Music[A], r: Music[A]): Music[A] =
+    :=:(l, r)
+
+  def line[A](ml: List[Music[A]]): Music[A] = ml.foldRight(rest[A](0))(serial)
+
+  def line1[A](ml: List[Music[A]]): Music[A] = ml.reduceRight(serial)
+
+  def chord[A](ml: List[Music[A]]): Music[A] = ml.foldRight(rest[A](0))(parallel)
+
+  def chord1[A](ml: List[Music[A]]): Music[A] = ml.reduceRight(parallel)
 
   def delayM[A](d: Dur)(m: => Music[A]): Music[A] =
     :+:(rest(d), m)
