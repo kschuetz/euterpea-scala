@@ -83,6 +83,28 @@ object MoreMusic {
     case m: Lazy[A] => Lazy(removeZeros(m.value))
   }
 
+  type LazyDur = List[Dur]
+
+  def durL[A](music: Music[A]): LazyDur = music match {
+    case m: Prim[A] => List(dur(m))
+    case :+:(m1, m2) =>
+      val d1 = durL(m1)
+      val d2 = durL(m2)
+      d1 ++ d2.map(_ + d1.last)
+    case :=:(m1, m2) => mergeLD(durL(m1), durL(m2))
+    case Modify(Control.Tempo(r), m) => durL(m).map(_ / r)
+    case Modify(_, m) => durL(m)
+    case m: Lazy[A] => durL(m.value)
+  }
+
+  def mergeLD(dur1: LazyDur, dur2: LazyDur): LazyDur = (dur1, dur2) match {
+    case (Nil, ld) => ld
+    case (ld, Nil) => ld
+    case (ld1@(d1::ds1), ld2@(d2::ds2)) =>
+      if(d1 < d2) d1 :: mergeLD(ds1, ld2)
+      else d2 :: mergeLD(ld1, ds2)
+  }
+
   def repeatM[A](music: Music[A]): Music[A] =
     :+:(music, Lazy(repeatM(music)))
 
