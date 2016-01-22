@@ -39,6 +39,50 @@ object MoreMusic {
       case m: Lazy[A] => takeM(d)(m.value)
     }
 
+  def dropM[A](d: Dur)(music: => Music[A]): Music[A] =
+    if(d < 0) music
+    else music match {
+      case Prim(Note(oldD, p)) => note((oldD - d).max(0), p)
+      case Prim(Rest(oldD)) => rest((oldD - d).max(0))
+      case :=:(m1, m2) => :=:(dropM(d)(m1), dropM(d)(m2))
+      case :+:(m1, m2) =>
+        val m1a = dropM(d)(m1)
+        val m2a = dropM(d - dur(m1a))(m2)
+        :+:(m1a, m2a)
+      case Modify(Control.Tempo(r), m) => tempo(r)(dropM(d * r)(m))
+      case Modify(c, m) => Modify(c, dropM(d)(m))
+      case m: Lazy[A] => dropM(d)(m.value)
+    }
+
+  def cut[A](d: Dur)(music: => Music[A]): Music[A] =
+    dropM[A](d)(music)
+
+  def removeZeros[A](music: => Music[A]): Music[A] = music match {
+    case p: Prim[A] => p
+    case m0 @ :+:(m1, m2) =>
+      val m1a = removeZeros(m1)
+      val m2a = removeZeros(m2)
+      (m1a, m2a) match {
+        case (Prim(Note(d, _)), m) if d.isZero => m
+        case (Prim(Rest(d)), m) if d.isZero => m
+        case (m, Prim(Note(d, _))) if d.isZero => m
+        case (m, Prim(Rest(d))) if d.isZero => m
+        case _ => m0
+      }
+    case m0 @ :=:(m1, m2) =>
+      val m1a = removeZeros(m1)
+      val m2a = removeZeros(m2)
+      (m1a, m2a) match {
+        case (Prim(Note(d, _)), m) if d.isZero => m
+        case (Prim(Rest(d)), m) if d.isZero => m
+        case (m, Prim(Note(d, _))) if d.isZero => m
+        case (m, Prim(Rest(d))) if d.isZero => m
+        case _ => m0
+      }
+    case Modify(c, m) => Modify(c, removeZeros(m))
+    case m: Lazy[A] => Lazy(removeZeros(m.value))
+  }
+
   def repeatM[A](music: Music[A]): Music[A] =
     :+:(music, Lazy(repeatM(music)))
 
@@ -76,7 +120,10 @@ object MoreMusic {
     case :+:(m1, m2) => :+:(mMap(m1)(f), mMap(m2)(f))
     case :=:(m1, m2) => :=:(mMap(m1)(f), mMap(m2)(f))
     case Modify(c, m) => Modify(c, mMap(m)(f))
-    case m: Lazy[A] => mMap(m.value)(f)
+    case lm: Lazy[A] => lm.value match {
+      case m: Compound[A] => Lazy(mMap(m)(f))
+      case m => mMap(m)(f)
+    }
   }
 
   type Volume = Int

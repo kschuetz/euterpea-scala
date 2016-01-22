@@ -51,12 +51,14 @@ object Music {
 
   sealed trait Music[+A]
   case class Prim[A](prim: Primitive[A]) extends Music[A]
-  case class :+:[A](left: Music[A], right: Music[A]) extends Music[A]
-  case class :=:[A](left: Music[A], right: Music[A]) extends Music[A]
-  case class Modify[A](control: Control, music: Music[A]) extends Music[A]
+
+  sealed trait Compound[A] extends Music[A]   // marker trait for recursive types
+  case class :+:[A](left: Music[A], right: Music[A]) extends Compound[A]
+  case class :=:[A](left: Music[A], right: Music[A]) extends Compound[A]
+  case class Modify[A](control: Control, music: Music[A]) extends Compound[A]
   // deriving (Show, Eq, Ord)
 
-  class Lazy[A](underlying: => Music[A]) extends Music[A] {
+  class Lazy[A](underlying: => Music[A]) extends Compound[A] {
     lazy val value = underlying
   }
 
