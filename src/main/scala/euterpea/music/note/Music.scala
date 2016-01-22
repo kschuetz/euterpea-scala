@@ -398,9 +398,9 @@ object Music {
 
   class MusicOps[A](music: Music[A]) {
     def :+:(m2: Music[A]): Music[A] =
-      Music.:+:(music, m2)
+      Music.:+:(m2, music)
     def :=:(m2: Music[A]): Music[A] =
-      Music.:=:(music, m2)
+      Music.:=:(m2, music)
   }
 
   implicit def musicToMusicOps[A](music: Music[A]): MusicOps[A] = new MusicOps(music)
@@ -408,7 +408,7 @@ object Music {
   val t251 = {
     val dMinor = d(4, wn) :=: f(4, wn) :=: a(4, wn)
     val gMajor = g(4, wn) :=: b(4, wn) :=: d(5, wn)
-    val cMajor = c(4, wn) :=: e(4, wn) :=: g(5, wn)
+    val cMajor = c(4, wn) :=: e(4, wn) :=: g(4, wn)
     dMinor :+: gMajor :+: cMajor
   }
 
