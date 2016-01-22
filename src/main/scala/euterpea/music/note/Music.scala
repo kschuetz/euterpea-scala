@@ -1,5 +1,6 @@
 package euterpea.music.note
 
+import org.smop.typeclass.Enum
 import spire.math.Rational
 
 object Music {
@@ -236,7 +237,31 @@ object Music {
     case class Loudness(l: Rational) extends Dynamic
   }
 
-  sealed trait StdLoudness
+  sealed abstract class StdLoudness(val enum: Int)
+  object StdLoudness {
+    case object PPP extends StdLoudness(0)
+    case object PP extends StdLoudness(1)
+    case object P extends StdLoudness(2)
+    case object MP extends StdLoudness(3)
+    case object SF extends StdLoudness(4)
+    case object MF extends StdLoudness(5)
+    case object NF extends StdLoudness(6)
+    case object FF extends StdLoudness(7)
+    case object FFF extends StdLoudness(8)
+
+    val order = Vector(PPP, PP, P, MP, SF, NF, FF, FFF)
+  }
+
+  implicit val enumStdLoudness = new Enum[StdLoudness] {
+    override def toEnum(i: Int): StdLoudness = StdLoudness.order(i)
+    override def fromEnum(a: StdLoudness): Int = a.enum
+  }
+
+  implicit val orderingStdLoudness = new Ordering[StdLoudness] {
+    override def compare(x: StdLoudness, y: StdLoudness): Int =
+      x.enum - y.enum
+  }
+
   sealed trait Tempo
   sealed trait Articulation
   case class Staccato(r: Rational) extends Articulation
