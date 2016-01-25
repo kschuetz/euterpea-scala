@@ -1,11 +1,11 @@
 package euterpea.music.note
 
-import Music._
+import euterpea.music.note.Music.{Control => Ctrl, _}
 import MoreMusic._
 import euterpea.music.note.MoreMusic.{NoteAttribute => NA}
 import euterpea.music.note.MoreMusic.Volume
+import euterpea.music.note.Music.Dynamic.{StdLoudness, Loudness}
 import euterpea.music.note.Music.InstrumentName.AcousticGrandPiano
-import euterpea.music.note.Music.{Control => Ctrl}
 import spire.math.Rational
 
 object Performance {
@@ -147,9 +147,26 @@ object Performance {
       }
       pa match {
         case Dyn(Dynamic.Accent(x)) => (pf.map(e => e.copy(eVol=(x*e.eVol).round.toInt)), dur)
+        case Dyn(Loudness(x)) => fancyInterpPhrase(pm, c.copy(cVol = x.round.toInt), pas, m)
+        case Dyn(StdLoudness(l)) =>
+          import Music.StdLoudness._
+          l match {
+            case PPP => loud(40)
+            case PP => loud(50)
+            case P => loud(60)
+            case MP => loud(70)
+            case SF => loud(80)
+            case MF => loud(90)
+            case NF => loud(100)
+            case FF => loud(110)
+            case FFF => loud(120)
+          }
+
+        case _ => fancyInterpPhrase(pm, c, pas, m)
       }
     }
   }
+
   trait Performable[A] {
     def perfDur(pm: PMap[Note1], c: Context[Note1], m: Music[A]): (Performance, DurT)
   }
