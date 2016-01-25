@@ -169,6 +169,43 @@ object MoreMusic {
     }
   }
 
+  def trill(i: Int, sDur: Dur)(music: Music[Pitch]): Music[Pitch] = music match {
+    case m@Prim(Note(tDur, p)) =>
+      if(sDur >= tDur) m
+      else {
+        :+:(note(tDur, p),
+          trill(-i, sDur)(note(tDur - sDur, trans(i, p))))
+      }
+    case Modify(Control.Tempo(r), m) => tempo(r)(trill(i, sDur * r)(m))
+    case Modify(c, m) => Modify(c, trill(i, sDur)(m))
+    case _ => throw new IllegalArgumentException("trill: input must be a single note.")
+  }
+
+  def trill1(i: Int, sDur: Dur)(music: Music[Pitch]): Music[Pitch] =
+    trill(-i, sDur)(transpose(i)(music))
+
+  def trilln(i: Int, nTimes: Int)(music: Music[Pitch]): Music[Pitch] =
+    trill(i, dur(music) / nTimes)(music)
+
+  def trilln1(i: Int, nTimes: Int)(music: Music[Pitch]): Music[Pitch] =
+    trilln(-i, nTimes)(transpose(i)(music))
+
+  def roll(dur: Dur)(music: Music[Pitch]): Music[Pitch] =
+    trill(0, dur)(music)
+
+  def rolln(nTimes: Int)(music: Music[Pitch]): Music[Pitch] =
+    trilln(0, nTimes)(music)
+
+  val ssfMel = {
+    val l1 = List(trilln(2, 5)(bf(6, en)), ef(7, en), ef(6, en), ef(7, en))
+    val l2 = List(bf(6, sn), c(7, sn), bf(6, sn), g(6, sn), bf(5, en))
+    val l3 = List(ef(6, sn), f(6, sn), g(6, sn), af(6, sn), bf(6, en), ef(7, en))
+    val l4 = List(trill(2, tn)(bf(6, qn)), bf(6, sn), denr)
+    line(l1 ++ l2 ++ l3 ++ l4)
+  }
+
+  val starsAndStripes = instrument(InstrumentName.Flute)(ssfMel)
+
   def pMap[A,B](pa: Primitive[A])(f: A => B): Primitive[B] = pa match {
     case Note(d, x) => Note(d, f(x))
     case r@Rest(_) => r
