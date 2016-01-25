@@ -1,6 +1,7 @@
 package euterpea.music.note
 
 import euterpea.music.note.Music._
+import spire.math.Rational
 
 object MoreMusic {
 
@@ -162,6 +163,15 @@ object MoreMusic {
     })
   }
 
+  def retro(music: Music[Pitch]): Music[Pitch] =
+    line(lineToList(music).reverse)
+
+  def retroInvert(music: Music[Pitch]): Music[Pitch] =
+    retro(invert(music))
+
+  def invertRetro(music: Music[Pitch]): Music[Pitch] =
+    invert(retro(music))
+
   def mkLn[A](n: Int, p: A, d: Dur): Music[A] = {
     val music = note(d, p)
     (0 until n).foldLeft(rest[A](0)){
@@ -178,6 +188,7 @@ object MoreMusic {
       }
     case Modify(Control.Tempo(r), m) => tempo(r)(trill(i, sDur * r)(m))
     case Modify(c, m) => Modify(c, trill(i, sDur)(m))
+    case lm: Lazy[Pitch] => trill(i, sDur)(lm.value)
     case _ => throw new IllegalArgumentException("trill: input must be a single note.")
   }
 
@@ -205,6 +216,23 @@ object MoreMusic {
   }
 
   val starsAndStripes = instrument(InstrumentName.Flute)(ssfMel)
+
+  def grace(n: Int, r: Rational)(music: Music[Pitch]): Music[Pitch] = music match {
+    case Prim(Note(d, p)) =>
+      :+:(note(r * d, trans(n, p)),
+          note((1 - r) * d, p))
+    case lm: Lazy[Pitch] => grace(n, r)(lm.value)
+    case _ => throw new IllegalArgumentException("grace: can only add a grace note to a note")
+  }
+
+  def grace2(n: Int, r: Rational)(m1: Music[Pitch], m2: Music[Pitch]): Music[Pitch] = (m1, m2) match {
+    case (lm: Lazy[Pitch], _) => grace2(n, r)(lm.value, m2)
+    case (_, lm: Lazy[Pitch]) => grace2(n, r)(m1, lm.value)
+    case (Prim(Note(d1, p1)), Prim(Note(d2, p2))) =>
+      :+:(note(d1-r*d2, p1), :+:(note(r*d2, trans(n, p2)), note(d2, p2)))
+    case _ => throw new IllegalArgumentException("grace2: can only add a grace note to a note")
+  }
+
 
   def pMap[A,B](pa: Primitive[A])(f: A => B): Primitive[B] = pa match {
     case Note(d, x) => Note(d, f(x))
